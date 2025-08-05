@@ -56,10 +56,15 @@ def run_test():
 
     time.sleep(2)
 
-    buttons_to_test = ["Button 1", "Button 2", "Button 3", "Button 4", "Button 5"]
+    buttons_to_test = ["Button 1", "Button 5"]
 
     for i, button_name in enumerate(buttons_to_test):
         print(f"--- Testing {button_name} ---")
+
+        if button_name == "Button 5":
+            print("Scrolling down to find Button 5...")
+            browser.scroll("down")
+            time.sleep(1) # Wait for scroll to settle
 
         # 1. Save "before" screenshot
         before_screenshot = browser.screenshot()
