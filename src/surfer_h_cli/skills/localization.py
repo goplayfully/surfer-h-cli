@@ -7,10 +7,12 @@ from PIL import Image
 
 from surfer_h_cli.utils import smart_resize
 
-LOCALIZATION_PROMPT: str = "Localize an element on the GUI image according to my instructions and output a click position as Click(x, y) with x num pixels from the left edge and y num pixels from the top edge.\n{component}"
+LOCALIZATION_PROMPT: str = "Localize an element on the GUI image according to my instructions and return `NOT_FOUND`\n{component}"
 
 
-def localization_request(image: Image.Image, element_name: str, model: str, temperature: float = 0.0) -> dict:
+def localization_request(
+    image: Image.Image, element_name: str, model: str, temperature: float = 0.0
+) -> dict:
     """Creates a localization prompt to send to an openai-compatible LLM."""
 
     # create prompt text
@@ -25,7 +27,9 @@ def localization_request(image: Image.Image, element_name: str, model: str, temp
         min_pixels=4 * 28 * 28,  # n_token * patch size * patch size
         max_pixels=1280 * 28 * 28,  # n_pixel * patch size * patch size
     )
-    image = image.resize((new_width, new_height), resample=Image.Resampling.LANCZOS).convert("RGB")
+    image = image.resize(
+        (new_width, new_height), resample=Image.Resampling.LANCZOS
+    ).convert("RGB")
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="JPEG", quality=90)
     image_base64 = base64.b64encode(image_bytes.getvalue()).decode("utf-8")
@@ -36,7 +40,10 @@ def localization_request(image: Image.Image, element_name: str, model: str, temp
                 "content": [
                     {
                         "type": "image_url",
-                        "image_url": {"detail": "auto", "url": f"data:image/jpeg;base64,{image_base64}"},
+                        "image_url": {
+                            "detail": "auto",
+                            "url": f"data:image/jpeg;base64,{image_base64}",
+                        },
                     },
                     {"type": "text", "text": localization_prompt},
                 ],
@@ -65,13 +72,20 @@ def parse_localization_response(
         width, height, new_width, new_height = 1.0, 1.0, 1.0, 1.0
 
     response = completion.choices[0].message.content
-    match = re.search(r".*?(?<!\d)(\d+(?:\.\d+)?)(?!\d).*?(?<!\d)(\d+(?:\.\d+)?)(?!\d)", response)
+    match = re.search(
+        r".*?(?<!\d)(\d+(?:\.\d+)?)(?!\d).*?(?<!\d)(\d+(?:\.\d+)?)(?!\d)", response
+    )
     if match is None:
         raise ValueError("Coordinates not found in completion content")
     x = float(match.group(1))
     y = float(match.group(2))
     normalized_x, normalized_y = x / new_width, y / new_height
-    if normalized_x > 1.0 or normalized_y > 1.0 or normalized_x < 0.0 or normalized_y < 0.0:
+    if (
+        normalized_x > 1.0
+        or normalized_y > 1.0
+        or normalized_x < 0.0
+        or normalized_y < 0.0
+    ):
         # put the click in the image
         normalized_x, normalized_y = 0.25, 0.25
     resized_x, resized_y = int(normalized_x * width), int(normalized_y * height)
@@ -79,8 +93,14 @@ def parse_localization_response(
 
 
 def localize_element(
-    image: Image.Image, element_name: str, openai_client: openai.OpenAI, model: str, temperature: float = 0.0
+    image: Image.Image,
+    element_name: str,
+    openai_client: openai.OpenAI,
+    model: str,
+    temperature: float = 0.0,
 ) -> tuple[float, float]:
-    prompt = localization_request(image=image, element_name=element_name, model=model, temperature=temperature)
+    prompt = localization_request(
+        image=image, element_name=element_name, model=model, temperature=temperature
+    )
     response = openai_client.chat.completions.create(**prompt)
     return parse_localization_response(response, image)
