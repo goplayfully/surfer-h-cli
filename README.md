@@ -1,4 +1,4 @@
-# Surfer-H-CLI
+# Outgoing fork of Surfer-H-CLI
 
 [🌐 Website](https://www.hcompany.ai/surfer-h) |
 [📖 Tech report](https://arxiv.org/abs/2506.02865) |
@@ -8,22 +8,20 @@
 
 Holo1 is H Company’s Action Vision-Language Model (VLM) and Surfer-H is the agent that enacts it in the real world. Together, they provide a powerful, automated, yet optimized solution to interacting with web interfaces the way we do—setting a goal, taking decisions, re-thinking and re-assessing where needed, and, ultimately, fulfilling everyday tasks. Holo1 and Surfer-H have been designed and built to do everything from booking flights, to searching for recipes online, and more.
 
-
-
 # Holo1
 
 [Holo1](https://huggingface.co/collections/Hcompany/holo1-683dd1eece7eb077b96d0cbd) is an Action Vision-Language Model (VLM) developed by [**H Company**](https://www.hcompany.ai/) for use in Surfer-H. It enables the agent to understand and act in digital environments. Holo1 is built based on 3 core components that shape and determine its behaviour: policy, localizer, and validator. These are defined below:
 
-- **Policy**: Determines what action should be taken.
-- **Localizer**: Locates elements on the screen—like buttons, text fields, or key UI attributes.
-- **Validator**: Decides whether it succeeded or failed in doing what it set out to do.
+-   **Policy**: Determines what action should be taken.
+-   **Localizer**: Locates elements on the screen—like buttons, text fields, or key UI attributes.
+-   **Validator**: Decides whether it succeeded or failed in doing what it set out to do.
 
 Trained on a combination of open-access, synthetic, and self-generated data, Holo1 enables state-of-the-art (SOTA) performance on the WebVoyager benchmark, offering the best accuracy/cost tradeoff among current models. It also excels in UI localization tasks such as Screenspot, Screenspot-V2, Screenspot-Pro, GroundUI-Web, and our own newly introduced benchmark, WebClick. Holo1 is optimized for both accuracy and cost-efficiency, making it a strong open-source alternative to existing VLMs. Currently, there are two Holo1 models:
 
-| Model                                                 | Size         | Tensor type | General purpose                                        | Use case         |
-| ----------------------------------------------------- | ------------ | ----------- | ------------------------------------------------------ | ---------------- |
+| Model                                                | Size         | Tensor type | General purpose                                         | Use case         |
+| ---------------------------------------------------- | ------------ | ----------- | ------------------------------------------------------- | ---------------- |
 | [Holo1 3B](https://huggingface.co/Hcompany/Holo1-3B) | 3.75B params | BF16        | Optimized for efficiency, running locally, and hardware | Common tasks     |
-| [Holo1 7B](https://huggingface.co/Hcompany/Holo1-7B) | 8.29B params | BF16        | Higher accuracy and for large scale inference          | Full-scale tasks |
+| [Holo1 7B](https://huggingface.co/Hcompany/Holo1-7B) | 8.29B params | BF16        | Higher accuracy and for large scale inference           | Full-scale tasks |
 
 # Surfer-H
 
@@ -37,12 +35,11 @@ This guide shows you how to deploy Holo1 (3b and 7b). You must first deploy the 
 
 There are different methods and contexts in which to deploy Holo1, including:
 
-| Method                                                                                             | Pre-requisites                                | Notes                                                                                      |
-| -------------------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [Local vLLM setup](src/surfer_h_cli/holo1/README.md)             | Install vLLM / Machine with GPU           | Uses the vLLM to download Holo1 from HuggingFace.                                                  |
-| [Local Docker Container](https://github.com/hcompai/hai-cookbook/tree/main/holo1/vllm)             | Install Docker / Machine with GPU              | Uses the `vllm/vllm-openai:v0.9.1` image.                                                  |
+| Method                                                                                             | Pre-requisites                               | Notes                                                                                     |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [Local vLLM setup](src/surfer_h_cli/holo1/README.md)                                               | Install vLLM / Machine with GPU              | Uses the vLLM to download Holo1 from HuggingFace.                                         |
+| [Local Docker Container](https://github.com/hcompai/hai-cookbook/tree/main/holo1/vllm)             | Install Docker / Machine with GPU            | Uses the `vllm/vllm-openai:v0.9.1` image.                                                 |
 | [Amazon SageMaker](https://github.com/hcompai/hai-cookbook/blob/main/holo1/sagemaker/deploy.ipynb) | Subscribe to Holo1 Models on AWS Marketplace | Deploys the Holo1 model via a prebuilt Notebook. No manual or complicated setup required. |
-
 
 For more information, check out the [H.AI Cookbook](https://github.com/hcompai/hai-cookbook).
 
@@ -51,16 +48,19 @@ For more information, check out the [H.AI Cookbook](https://github.com/hcompai/h
 Set your environment variables using one of two methods, outlined below:
 
 **Option 1: Create a `.env` at the root of this repo**:
+
 ```
 HAI_API_KEY=your_hai_api_key_here
 HAI_MODEL_URL=https://your-api-endpoint-url/
 HAI_MODEL_NAME=hosted model name, for example Hcompany/Holo1-7B
 OPENAI_API_KEY=your_openai_api_key_here
 ```
+
 Note: Make sure your .env file ends with a blank (empty) line. This helps ensure the `OPENAI_API_KEY` and other variables are correctly loaded by the bash scripts.
 
 **Option 2: Export in your shell profile** (for global setup):
 Add these to your `.zshrc` or `.bashrc` files:
+
 ```
 export HAI_API_KEY=...
 export HAI_MODEL_URL=...
@@ -86,11 +86,12 @@ You can then run the agent from the Surfer-H-CLI using the following command:
 ```bash
 ./run-on-holo1.sh
 ```
+
 Here are the different run settings that may apply based on use and context:
 
-- ```run-on-holo1.sh``` : Use Holo1 for navigation and localization, hosted remotely.
-- ```run-on-holo1-local.sh``` : Script with specific instruction for using one or several locally hosted Holo1.
-- ```run-on-holo1-val-gpt41.sh``` : Use remotely-hosted Holo1 and GPT-4.1 for validation.
+-   `run-on-holo1.sh` : Use Holo1 for navigation and localization, hosted remotely.
+-   `run-on-holo1-local.sh` : Script with specific instruction for using one or several locally hosted Holo1.
+-   `run-on-holo1-val-gpt41.sh` : Use remotely-hosted Holo1 and GPT-4.1 for validation.
 
 The above scripts call the agent like this, with different configurations for the placeholders:
 
@@ -111,12 +112,17 @@ uv run src/surfer_h_cli/surferh.py \
     --temperature_navigation 0.7 \
 
 ```
+
 ### Using GPT for Validation
-To run ```run-on-holo1-val-gpt41.sh```, remember to export your OpenAI API key for validation:
+
+To run `run-on-holo1-val-gpt41.sh`, remember to export your OpenAI API key for validation:
+
 ```
 export API_KEY_VALIDATION=${OPENAI_API_KEY}
 ```
+
 and define the correct base URL
+
 ```
 --base_url_validation https://api.openai.com/v1/
 ```
@@ -127,11 +133,11 @@ In addition to the command-line interface, Surfer-H includes a modern web fronte
 
 ### Features
 
-- **Task Creation**: Simply describe what you want to accomplish in natural language through a web interface
-- **Real-time Monitoring**: Watch your agent complete tasks with live updates
-- **Trajectory Management**: View, replay, and manage automated browsing sequences
-- **Settings Configuration**: Easily customize agent behavior, target URLs, and execution parameters through a UI
-- **Example Tasks**: Get started quickly with pre-configured example prompts
+-   **Task Creation**: Simply describe what you want to accomplish in natural language through a web interface
+-   **Real-time Monitoring**: Watch your agent complete tasks with live updates
+-   **Trajectory Management**: View, replay, and manage automated browsing sequences
+-   **Settings Configuration**: Easily customize agent behavior, target URLs, and execution parameters through a UI
+-   **Example Tasks**: Get started quickly with pre-configured example prompts
 
 ### Quick Start
 
@@ -147,11 +153,12 @@ This command will automatically start both the Surfer-H backend and the Next.js 
 
 ![Surfer-H Web Interface](frontend/interface-screenshot.png)
 
-*The Surfer-H web interface showing real-time agent monitoring as it searches for a beef Wellington recipe*
+_The Surfer-H web interface showing real-time agent monitoring as it searches for a beef Wellington recipe_
 
 For detailed setup instructions, manual installation, and development information, see the [Frontend README](frontend/README.md).
 
 ## View a sample run
+
 The video below shows Surfer-H in action, demonstrating how the agent completes a real-world task by thinking, reasoning, and browsing the web based on a prompt. This demo (hosted on **YouTube**) illustrates what to expect when running an agent using the Surfer-H-CLI with the command `./run-on-holo1.sh.`
 
 <p align="center"> <a href="https://www.youtube.com/watch?v=8PF9f3QPeO8" target="_blank" rel="noopener noreferrer"> <img src="https://img.youtube.com/vi/8PF9f3QPeO8/0.jpg" alt="Watch demo on YouTube" /> </a> </p>

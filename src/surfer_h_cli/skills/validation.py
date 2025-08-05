@@ -1,3 +1,5 @@
+import json
+
 import openai
 
 from surfer_h_cli.skills.validation_models import WebRetrievalEvaluation
@@ -26,17 +28,25 @@ Result Response: {answer}
 {num} screenshots at the end: """
 
 
-def build_validation_messages(task: str, answer: str, screenshots: list[str]) -> list[dict]:
+def build_validation_messages(
+    task: str, answer: str, screenshots: list[str]
+) -> list[dict]:
     """Build messages compatible with OpenAI API format"""
     user_content: list[dict] = [
-        {"type": "text", "text": USER_PROMPT.format(task=task, answer=answer, num=len(screenshots))}
+        {
+            "type": "text",
+            "text": USER_PROMPT.format(task=task, answer=answer, num=len(screenshots)),
+        }
     ]
 
     for image_b64 in screenshots:
         user_content.append(
             {
                 "type": "image_url",
-                "image_url": {"detail": "auto", "url": f"data:image/png;base64,{image_b64}"},
+                "image_url": {
+                    "detail": "auto",
+                    "url": f"data:image/png;base64,{image_b64}",
+                },
             }
         )
 
@@ -80,10 +90,22 @@ def validate_web_voyager_answer(
         if not content:
             raise Exception("Problem with the LLM")
 
-        success = "SUCCESS" in content and "NOT SUCCESS" not in content
+        try:
+            data = json.loads(content)
+            if isinstance(data, dict) and "success" in data:
+                success = bool(data["success"])
+            else:
+                # Fallback to string search (original code) if JSON is not in the expected format
+                success = "SUCCESS" in content and "NOT SUCCESS" not in content
+        except (json.JSONDecodeError, TypeError):
+            # If it's not JSON, use the original string search logic
+            success = "SUCCESS" in content and "NOT SUCCESS" not in content
+
         metrics.success = success
         metrics.why = content
         return metrics
 
     except Exception as e:
-        return WebRetrievalEvaluation(task=task, success=False, why="Problem during evaluation: " + str(e))
+        return WebRetrievalEvaluation(
+            task=task, success=False, why="Problem during evaluation: " + str(e)
+        )
