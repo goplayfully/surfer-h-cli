@@ -18,5 +18,5 @@ python test_click_reliability.py --base_url_localization http://172.173.228.133:
 
 # Notes:
 
-Tweaking the prompt to only mention `NOT_FOUND` seemed to work for the test (which is bizarre)
-But the `launch.sh` is no longer pulling screenshots; maybe we broke something.
+Tweaking the prompt to only mention `NOT_FOUND` (without the instructions about Click) seemed to work
+for the test (which is bizarre). But the `launch.sh` is no longer pulling screenshots; maybe we broke something.
