@@ -105,6 +105,7 @@ export default function HomepageContainer() {
           message={message}
           setMessage={setMessage}
           settings={settings}
+          setSettings={setSettings}
         />
 
         <ExamplePrompts onSelectExample={handleSelectExample} />
