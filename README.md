@@ -1,5 +1,21 @@
 # Outgoing fork of Surfer-H-CLI
 
+# Getting Started
+Spin up a VM using
+```bash
+az vm start --resource-group gpu2_group --name holo --subscription 475898f6-5209-4a73-b15e-0def24a9473f
+```
+then ssh in using
+```bash
+ssh -i ~/.ssh/id_ed25519 mrisher@172.173.228.133
+docker run -it --gpus=all --rm -p 8000:8000 vllm/vllm-openai:v0.9.1     --model HCompany/Holo1-7B     --dtype bfloat16     --gpu-memory-utilization 0.9     --limit-mm-per-prompt 'image=3,video=0'     --mm-processor-kwargs '{"max_pixels": 1003520}'     --max-model-len 16384
+```
+
+and then
+```
+./launch.sh
+```
+
 [🌐 Website](https://www.hcompany.ai/surfer-h) |
 [📖 Tech report](https://arxiv.org/abs/2506.02865) |
 [🤗 Hugging-Face Models](https://huggingface.co/collections/Hcompany/holo1-683dd1eece7eb077b96d0cbd) |
