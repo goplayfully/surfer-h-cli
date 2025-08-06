@@ -7,7 +7,8 @@ from PIL import Image
 
 from surfer_h_cli.utils import smart_resize
 
-LOCALIZATION_PROMPT: str = "Localize an element on the GUI image according to my instructions and return `NOT_FOUND`\n{component}"
+LOCALIZATION_PROMPT: str = """Localize an element on the GUI image according to my instructions and output
+a click position as Click(x, y) with x num pixels from the left edge and y num pixels from the top edge.\n{component}"""
 
 
 def localization_request(

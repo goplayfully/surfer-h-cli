@@ -7,13 +7,16 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
 def chrome_viewport_size(driver: Chrome) -> tuple[int, int]:
     """Get viewport size of chrome browser"""
 
-    return tuple(driver.execute_script("return [window.innerWidth, window.innerHeight];"))
+    return tuple(
+        driver.execute_script("return [window.innerWidth, window.innerHeight];")
+    )
 
 
 def resize_chrome(driver: Chrome, width: int, height: int):
@@ -22,7 +25,20 @@ def resize_chrome(driver: Chrome, width: int, height: int):
     if width != current_width or height != current_height:
         driver.set_window_size(width, height)
         current_width, current_height = chrome_viewport_size(driver)
-        driver.set_window_size(width + width - current_width, height + height - current_height)
+        driver.set_window_size(
+            width + width - current_width, height + height - current_height
+        )
+
+
+class page_is_loaded:
+    """An expectation for checking that the page is fully loaded."""
+
+    def __call__(self, driver):
+        state = driver.execute_script("return document.readyState")
+        print(f"document.readyState is '{state}'")
+        return state == "complete"
+
+
 
 
 class Tab:
@@ -55,7 +71,9 @@ class SimpleWebBrowserTools:
             wait_timeout: Default timeout for waiting operations
         """
 
-    def open_browser(self, headless: bool, width: int, height: int, action_timeout: int, **kwargs):
+    def open_browser(
+        self, headless: bool, width: int, height: int, action_timeout: int, **kwargs
+    ):
         """Setup the Selenium WebDriver"""
         options = Options()
         if headless:
@@ -147,11 +165,13 @@ class SimpleWebBrowserTools:
         """Navigate back to previous page"""
         assert self.driver
         self.driver.back()
+        self.wait.until(page_is_loaded())
 
     def goto(self, url: str):
         """Navigate to a specific URL"""
         assert self.driver
         self.driver.get(url)
+        self.wait.until(page_is_loaded())
 
     def change_tab(self, title: str):
         """Switch to tab with specific title"""
@@ -181,6 +201,7 @@ class SimpleWebBrowserTools:
         """Refresh the current page"""
         assert self.driver
         self.driver.refresh()
+        self.wait.until(page_is_loaded())
 
     def restart(self):
         """Restart the browser"""
@@ -188,7 +209,10 @@ class SimpleWebBrowserTools:
         if not hasattr(self, "headless"):
             raise ValueError("Browser not initialized")
         self.open_browser(
-            headless=self.headless, width=self.width, height=self.height, action_timeout=self.action_timeout
+            headless=self.headless,
+            width=self.width,
+            height=self.height,
+            action_timeout=self.action_timeout,
         )
 
     def screenshot(self) -> Image.Image:

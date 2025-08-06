@@ -349,7 +349,7 @@ class AgentRunner:
                     def __init__(self, images, trajectory):
                         self.screenshots = images
                         self.timestep = trajectory["step_count"]
-                        self.url = ""
+                        self.url = trajectory["url"]
                         self.notes = ""
                         self.task = trajectory["task"]
                         self.trajectory_id = trajectory["id"]
@@ -591,6 +591,7 @@ async def get_trajectory(trajectory_id: str):
 @app.get("/trajectory/{trajectory_id}/events")
 async def get_trajectory_events(trajectory_id: str):
     """Get full trajectory data including all historical events"""
+    print(f"Frontend is polling for events for trajectory {trajectory_id} to update the UI.")
     trajectory_data = agent_runner.get_trajectory_events(trajectory_id)
     if not trajectory_data:
         raise HTTPException(status_code=404, detail="Trajectory not found")

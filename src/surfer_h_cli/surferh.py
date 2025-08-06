@@ -17,6 +17,7 @@ from surfer_h_cli.utils import image_to_b64
 MESSAGE_TEMPLATES = {
     "thought": "🧠  Thought : {message}",
     "screenshot": "📷  Screenshot : {message}",
+    "url": "🌍  URL : {message}",
     "notes": "✍️  Notes : {message}",
     "action": "🛠️  Action : {message}",
     "answer": "💬  Answer : {message}",
@@ -25,6 +26,7 @@ MESSAGE_TEMPLATES = {
 MESSAGE_COLORS = {
     "thought": "\033[35m",  # Magenta
     "screenshot": "\033[36m",  # Cyan
+    "url": "\033[94m",  # Light Blue
     "notes": "\033[33m",  # Yellow
     "action": "\033[32m",  # Green
     "answer": "\033[34m",  # Blue
@@ -316,12 +318,14 @@ def agent_loop(
         url=url,
         screenshots=[browser.screenshot()],
     )
+    set_current_state(current_state)
 
     start_time = time.time()
 
     while True:
         write_message(f"Step {current_state.timestep}", "announcement")
         write_message(current_state.screenshots[-1], "screenshot")
+        write_message(current_state.url, "url")
 
         force_answer = False
         if current_state.timestep == max_n_steps or time.time() - start_time > max_time_seconds:
@@ -336,6 +340,7 @@ def agent_loop(
             previous_actions=", ".join([str(action) for action in current_state.navigation_actions]),
             step=current_state.current_step,
             notes=current_state.notes,
+            url=current_state.url,
             force_answer=force_answer,
             screenshots=current_state.screenshots[-n_navigation_screenshots:],
             openai_client_navigation=openai_client_navigation,
